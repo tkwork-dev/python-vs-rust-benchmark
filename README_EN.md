@@ -100,14 +100,29 @@ fib(5) = fib(4) + fib(3)
 
 ### Phase 2: Sieve of Eratosthenes
 
-Marks multiples of each prime as composite, efficiently finding all primes up to 10 million (664,579 primes). Heavy on loops and array access.
+A **prime number** is a natural number greater than 1 that is divisible only by 1 and itself (2, 3, 5, 7, 11, 13...).
+
+The **Sieve of Eratosthenes** is an ancient algorithm devised by the Greek mathematician Eratosthenes for efficiently finding all primes up to a given limit. It works by repeatedly "sieving out" composite numbers (non-primes), leaving only primes behind.
+
+#### How the Algorithm Works
+
+1. Create a list of all numbers from 2 to N, initially marked as "possibly prime"
+2. The smallest number (2) is confirmed prime → cross out all multiples of 2 (4, 6, 8...)
+3. The next remaining number (3) is confirmed prime → cross out all multiples of 3 (9, 12, 15...)
+4. The next remaining number (5) is confirmed prime → cross out all multiples of 5 (25, 30, 35...)
+5. Repeat until √N — all remaining numbers are prime
 
 ```
-2 is prime → mark 4,6,8,10... as composite
-3 is prime → mark 9,12,15,18... as composite
-5 is prime → mark 25,30,35... as composite
-... remaining unmarked numbers are prime
+Initial:          [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15...]
+
+Cross out 2's:    [2, 3, ×, 5, ×, 7, ×, 9,  ×, 11,  ×, 13,  ×, 15...]
+Cross out 3's:    [2, 3, ×, 5, ×, 7, ×, ×,  ×, 11,  ×, 13,  ×,  ×...]
+Cross out 5's:    [2, 3, ×, 5, ×, 7, ×, ×,  ×, 11,  ×, 13,  ×,  ×...]
+→ Remaining: 2, 3, 5, 7, 11, 13... are prime
 ```
+
+In this benchmark, the limit is set to 10 million, finding 664,579 primes.
+The algorithm is dominated by array reads/writes and loops, making the **per-iteration interpreter overhead** and **array access cost** clearly visible.
 
 **What it measures**: Per-loop-iteration cost, array read/write performance
 
