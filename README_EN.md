@@ -208,11 +208,16 @@ Proof that "Python is slow" only applies to pure Python code. With C bindings (N
 
 ### Rust vs Python+C Comparison
 
-| Topic | Rust | Python+C | Gap |
-|-------|------|----------|-----|
-| Sieve | 19 ms | 19 ms | **Nearly identical** |
-| Matrix | 6 ms | 0.77 ms | NumPy (BLAS) is faster |
-| Palindrome | 43 ms | 143 ms | Rust 3x faster |
+| Topic | Rust | Python+C | Gap | Notes |
+|-------|------|----------|-----|-------|
+| Fibonacci | 216 ms | 0.05 ms | **Python+C 4,000x faster** | ※Algorithm change (memoization), not a pure language comparison |
+| Sieve | 19 ms | 19 ms | **Nearly identical** | NumPy array slicing delegates loops to C layer |
+| Matrix | 6 ms | 0.77 ms | **Python+C 8x faster** | NumPy's internal BLAS (OpenBLAS) uses SIMD + multithreading |
+| Palindrome | 43 ms | 143 ms | Rust 3x faster | Python's for-loop remains even with slice optimization |
+
+> ⚠️ **Note on Fibonacci**: The lru_cache version changes the time complexity from O(2^n) to O(n) through memoization.
+> It is faster because of algorithmic improvement, not because of C bindings.
+> Rust with the same memoization would achieve similar speed. The other 3 benchmarks are pure same-algorithm comparisons.
 
 ### Key Takeaway
 
