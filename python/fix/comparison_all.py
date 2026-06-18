@@ -1,6 +1,6 @@
-"""全フェーズ比較: 純粋Python vs Cバインディング活用版
+"""全フェーズ比較: 純粋Python vs 最適化版
 
-「純粋Pythonでは遅いが、Cバインディング（NumPy等）を使えば
+「純粋Pythonでは遅いが、最適化手法（NumPy等）を使えば
 Rustに匹敵するパフォーマンスが出る」ことを証明する統合ベンチマーク。
 """
 
@@ -127,7 +127,7 @@ def bench(name: str, func, *args) -> float:
 
 def main() -> None:
     print("=" * 60)
-    print(" 純粋Python vs Cバインディング（NumPy/lru_cache）比較")
+    print(" 純粋Python vs 最適化版（NumPy/lru_cache）比較")
     print("=" * 60)
     print("")
 
@@ -206,7 +206,7 @@ def main() -> None:
     for name, t1, t2, ratio in results:
         print(f"{name:<12} {t1:>10.2f}ms {t2:>10.2f}ms {ratio:>7.0f}x")
     print("")
-    print("結論: Cバインディング（NumPy/lru_cache/スライス）を活用すれば、")
+    print("結論: 最適化手法（NumPy/lru_cache/スライス）を活用すれば、")
     print("      純粋Pythonの10〜数万倍の高速化が可能。")
     print("      Rustとの差も大幅に縮まる（特に行列積はほぼ同等になる）。")
 

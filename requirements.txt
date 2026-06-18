@@ -1,0 +1,4 @@
+# Python vs Rust パフォーマンス比較検証 - Python依存パッケージ
+# インストール: pip install -r requirements.txt
+
+numpy>=1.24.0

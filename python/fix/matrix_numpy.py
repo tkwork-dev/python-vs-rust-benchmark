@@ -1,4 +1,4 @@
-"""行列積（N×N） - NumPy版 パフォーマンス検証（Python + Cバインディング）"""
+"""行列積（N×N） - NumPy版 パフォーマンス検証"""
 
 import time
 import numpy as np

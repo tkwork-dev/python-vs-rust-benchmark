@@ -1,5 +1,5 @@
 # Python vs Rust Performance Benchmark - Full Comparison
-# Pure Python / Python + C Bindings / Rust
+# Pure Python / Optimized Python / Rust
 
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 $PSDefaultParameterValues['Out-File:Encoding'] = 'utf8'
@@ -10,13 +10,14 @@ $env:PATH = "$env:USERPROFILE\.cargo\bin;$env:PATH"
 # MSVC environment setup
 $vcvars = "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
 
-function Build-Rust {
-    param([string]$Project)
-    $dir = Join-Path $PSScriptRoot "rust\$Project"
+# Rustワークスペース一括ビルド
+function Build-RustWorkspace {
+    $rustDir = Join-Path $PSScriptRoot "rust"
+    Write-Host "Building Rust workspace..." -ForegroundColor DarkGray
     if (Test-Path $vcvars) {
-        cmd /c "`"$vcvars`" x64 >nul 2>&1 & cd /d `"$dir`" & cargo build --release" 2>&1 | Out-Null
+        cmd /c "`"$vcvars`" x64 >nul 2>&1 & cd /d `"$rustDir`" & cargo build --release" 2>&1 | Out-Null
     } else {
-        Push-Location $dir
+        Push-Location $rustDir
         cargo build --release 2>&1 | Out-Null
         Pop-Location
     }
@@ -24,7 +25,7 @@ function Build-Rust {
 
 function Run-Rust {
     param([string]$Project)
-    $exe = Join-Path $PSScriptRoot "rust\$Project\target\release\$Project.exe"
+    $exe = Join-Path $PSScriptRoot "rust\target\release\$Project.exe"
     if (Test-Path $exe) {
         & $exe
     } else {
@@ -34,8 +35,12 @@ function Run-Rust {
 
 Write-Host "============================================================" -ForegroundColor Cyan
 Write-Host " Python vs Rust Performance Benchmark" -ForegroundColor Cyan
-Write-Host " Pure Python / Python + C Bindings / Rust" -ForegroundColor Cyan
+Write-Host " Pure Python / Optimized Python / Rust" -ForegroundColor Cyan
 Write-Host "============================================================" -ForegroundColor Cyan
+Write-Host ""
+
+# Rust ワークスペース一括ビルド
+Build-RustWorkspace
 Write-Host ""
 
 # =====================================================
@@ -53,7 +58,6 @@ python python/fix/fibonacci_lru.py
 Write-Host ""
 
 Write-Host "[Rust]" -ForegroundColor Yellow
-Build-Rust "fibonacci"
 Run-Rust "fibonacci"
 Write-Host ""
 
@@ -72,7 +76,6 @@ python python/fix/sieve_numpy.py
 Write-Host ""
 
 Write-Host "[Rust]" -ForegroundColor Yellow
-Build-Rust "sieve"
 Run-Rust "sieve"
 Write-Host ""
 
@@ -91,7 +94,6 @@ python python/fix/matrix_numpy.py
 Write-Host ""
 
 Write-Host "[Rust]" -ForegroundColor Yellow
-Build-Rust "matrix"
 Run-Rust "matrix"
 Write-Host ""
 
@@ -110,7 +112,6 @@ python python/fix/palindrome_regex.py
 Write-Host ""
 
 Write-Host "[Rust]" -ForegroundColor Yellow
-Build-Rust "palindrome"
 Run-Rust "palindrome"
 Write-Host ""
 

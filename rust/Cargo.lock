@@ -5,3 +5,15 @@ version = 4
 [[package]]
 name = "fibonacci"
 version = "0.1.0"
+
+[[package]]
+name = "matrix"
+version = "0.1.0"
+
+[[package]]
+name = "palindrome"
+version = "0.1.0"
+
+[[package]]
+name = "sieve"
+version = "0.1.0"

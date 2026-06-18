@@ -14,9 +14,15 @@ A project that quantitatively verifies why "Python is slow" by comparing executi
 ## Prerequisites
 
 - Python 3.10+
-- NumPy (required for fix/ benchmarks): `pip install numpy`
 - Rust (via rustup): https://rustup.rs/
 - Visual Studio Build Tools 2022 (MSVC linker)
+
+### Setup
+
+```bash
+# Install Python dependencies
+pip install -r requirements.txt
+```
 
 ## How to Run
 
@@ -39,19 +45,20 @@ python python/sieve.py
 python python/matrix.py
 python python/palindrome.py
 
-# Python + C Bindings (fix/)
-pip install numpy
+# Python + Optimized (fix/)
 python python/fix/fibonacci_lru.py
 python python/fix/sieve_numpy.py
 python python/fix/matrix_numpy.py
 python python/fix/palindrome_regex.py
 python python/fix/comparison_all.py    # All-in-one comparison
 
-# Rust (build required)
-cd rust/fibonacci && cargo build --release && ./target/release/fibonacci.exe
-cd rust/sieve && cargo build --release && ./target/release/sieve.exe
-cd rust/matrix && cargo build --release && ./target/release/matrix.exe
-cd rust/palindrome && cargo build --release && ./target/release/palindrome.exe
+# Rust (workspace build)
+cd rust
+cargo build --release
+./target/release/fibonacci.exe
+./target/release/sieve.exe
+./target/release/matrix.exe
+./target/release/palindrome.exe
 ```
 
 ## Project Structure
@@ -59,23 +66,28 @@ cd rust/palindrome && cargo build --release && ./target/release/palindrome.exe
 ```
 python-vs-rust-benchmark/
 ├── docs/
-│   └── 要件定義書.md              # Requirements (Japanese)
+│   ├── 要件定義書.md              # Requirements (Japanese)
+│   └── environment/
+│       └── DxDiag.txt             # Hardware environment info
 ├── python/
 │   ├── fibonacci.py               # Phase 1: Fibonacci (recursive)
 │   ├── sieve.py                   # Phase 2: Sieve of Eratosthenes
 │   ├── matrix.py                  # Phase 3: Matrix multiplication
 │   ├── palindrome.py              # Phase 4: Palindrome check
-│   └── fix/                       # C-binding accelerated versions
+│   └── fix/                       # Optimized versions (acceleration proof)
 │       ├── comparison_all.py      # All-in-one comparison benchmark
 │       ├── fibonacci_lru.py       # lru_cache version
 │       ├── sieve_numpy.py         # NumPy version
 │       ├── matrix_numpy.py        # NumPy version
 │       └── palindrome_regex.py    # Slice version
 ├── rust/
+│   ├── Cargo.toml                 # Workspace definition
 │   ├── fibonacci/                 # Phase 1
 │   ├── sieve/                     # Phase 2
 │   ├── matrix/                    # Phase 3
 │   └── palindrome/                # Phase 4
+├── results/                       # Benchmark result logs
+├── requirements.txt               # Python dependencies
 ├── run_benchmark.ps1              # Benchmark runner (PowerShell)
 ├── run.bat                        # Double-click to run
 └── README.md                      # Documentation (Japanese)
@@ -191,15 +203,15 @@ Checks whether 1 million 100-character strings are palindromes by comparing char
 
 Pure Python is **24–84x slower** than Rust for identical logic. The gap grows with more loops and numerical computation.
 
-This is an inherent characteristic of Python's dynamic typing and interpreter execution model — unavoidable without C bindings.
+This is an inherent characteristic of Python's dynamic typing and interpreter execution model — unavoidable without native library delegation.
 
-## Supplementary: Pure Python vs C-Binding Versions
+## Supplementary: Pure Python vs Optimized Versions
 
-Proof that "Python is slow" only applies to pure Python code. With C bindings (NumPy, lru_cache), performance improves dramatically.
+Proof that "Python is slow" only applies to pure Python code. With optimization techniques (NumPy, lru_cache, slicing), performance improves dramatically.
 
 ### Results
 
-| Topic | Pure Python | C-Binding | Speedup | Method Used |
+| Topic | Pure Python | Optimized | Speedup | Method Used |
 |-------|-----------|---------|--------|-------------|
 | Fibonacci | 11,809 ms | 0.03 ms | **468,595x** | functools.lru_cache |
 | Sieve | 894 ms | 19 ms | **47x** | NumPy array slicing |
@@ -216,15 +228,15 @@ Proof that "Python is slow" only applies to pure Python code. With C bindings (N
 | Palindrome | 43 ms | 143 ms | Rust 3x faster | Python's for-loop remains even with slice optimization |
 
 > ⚠️ **Note on Fibonacci**: The lru_cache version changes the time complexity from O(2^n) to O(n) through memoization.
-> It is faster because of algorithmic improvement, not because of C bindings.
+> It is faster because of algorithmic improvement, not because of the optimization technique itself.
 > Rust with the same memoization would achieve similar speed. The other 3 benchmarks are pure same-algorithm comparisons.
 
 ### Key Takeaway
 
 - Pure Python is indeed slow (24–84x slower than Rust)
-- With C bindings, **Python can match or even exceed Rust's naive implementation**
+- With proper optimization, **Python can match or even exceed Rust's naive implementation**
 - NumPy's matrix operations call BLAS (C/Fortran) internally, rivaling optimized native code
-- "Python is slow" really means **the Python interpreter is slow** — when used as a bridge to C libraries, performance is not an issue
+- "Python is slow" really means **the Python interpreter's loops and function calls are slow** — when heavy computation is delegated to native libraries, performance is not an issue
 
 ---
 

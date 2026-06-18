@@ -1,4 +1,4 @@
-"""素数計算（エラトステネスの篩） - NumPy版 パフォーマンス検証（Python + Cバインディング）"""
+"""素数計算（エラトステネスの篩） - NumPy版 パフォーマンス検証"""
 
 import time
 import numpy as np

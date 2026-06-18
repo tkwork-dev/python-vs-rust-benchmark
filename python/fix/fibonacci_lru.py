@@ -4,7 +4,7 @@
 純粋再帰版との差を見る。
 
 注意: これはアルゴリズム改善（メモ化）であり、純粋な言語性能比較ではない。
-しかし「Pythonでも適切にCバインディングを活用すれば桁違いに速くなる」ことの証明。
+しかし「Pythonでも適切な最適化手法を活用すれば桁違いに速くなる」ことの証明。
 """
 
 import time
@@ -52,7 +52,7 @@ def main() -> None:
     print(f"  結果: {result_naive}")
     print(f"  実行時間: {elapsed_naive:.2f} ms")
     print(f"")
-    print(f"[lru_cache（Cバインディング）]")
+    print(f"[lru_cache（メモ化）]")
     print(f"  結果: {result_cached}")
     print(f"  実行時間: {elapsed_cached:.4f} ms")
     print(f"")

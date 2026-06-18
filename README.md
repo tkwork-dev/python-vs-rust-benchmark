@@ -16,9 +16,15 @@
 ## 前提条件
 
 - Python 3.10以上
-- NumPy（fix版の実行に必要）: `pip install numpy`
 - Rust (rustup経由でインストール): https://rustup.rs/
 - Visual Studio Build Tools 2022（MSVCリンカー）
+
+### セットアップ
+
+```bash
+# Python依存パッケージの一括インストール
+pip install -r requirements.txt
+```
 
 ## 実行方法
 
@@ -41,19 +47,20 @@ python python/sieve.py
 python python/matrix.py
 python python/palindrome.py
 
-# Python + Cバインディング（fix版）
-pip install numpy
+# Python + 最適化版（fix版）
 python python/fix/fibonacci_lru.py
 python python/fix/sieve_numpy.py
 python python/fix/matrix_numpy.py
 python python/fix/palindrome_regex.py
 python python/fix/comparison_all.py    # 統合比較
 
-# Rust（要ビルド）
-cd rust/fibonacci && cargo build --release && ./target/release/fibonacci.exe
-cd rust/sieve && cargo build --release && ./target/release/sieve.exe
-cd rust/matrix && cargo build --release && ./target/release/matrix.exe
-cd rust/palindrome && cargo build --release && ./target/release/palindrome.exe
+# Rust（ワークスペース一括ビルド）
+cd rust
+cargo build --release
+./target/release/fibonacci.exe
+./target/release/sieve.exe
+./target/release/matrix.exe
+./target/release/palindrome.exe
 ```
 
 ## プロジェクト構成
@@ -61,25 +68,30 @@ cd rust/palindrome && cargo build --release && ./target/release/palindrome.exe
 ```
 Python検証/
 ├── docs/
-│   └── 要件定義書.md
+│   ├── 要件定義書.md
+│   └── environment/
+│       └── DxDiag.txt              # 実行環境のハードウェア情報
 ├── python/
-│   ├── fibonacci.py        # フェーズ1: フィボナッチ（再帰）
-│   ├── sieve.py            # フェーズ2: エラトステネスの篩
-│   ├── matrix.py           # フェーズ3: 行列積
-│   ├── palindrome.py       # フェーズ4: 回文判定
-│   └── fix/                # Cバインディング活用版（高速化証明）
-│       ├── comparison_all.py   # 統合比較ベンチマーク
-│       ├── fibonacci_lru.py    # lru_cache版
-│       ├── sieve_numpy.py      # NumPy版
-│       ├── matrix_numpy.py     # NumPy版
-│       └── palindrome_regex.py # スライス版
+│   ├── fibonacci.py                # フェーズ1: フィボナッチ（再帰）
+│   ├── sieve.py                    # フェーズ2: エラトステネスの篩
+│   ├── matrix.py                   # フェーズ3: 行列積
+│   ├── palindrome.py               # フェーズ4: 回文判定
+│   └── fix/                        # 最適化版（高速化手法の証明）
+│       ├── comparison_all.py       # 統合比較ベンチマーク
+│       ├── fibonacci_lru.py        # lru_cache版
+│       ├── sieve_numpy.py          # NumPy版
+│       ├── matrix_numpy.py         # NumPy版
+│       └── palindrome_regex.py     # スライス版
 ├── rust/
-│   ├── fibonacci/          # フェーズ1
-│   ├── sieve/              # フェーズ2
-│   ├── matrix/             # フェーズ3
-│   └── palindrome/         # フェーズ4
-├── run_benchmark.ps1       # 一括実行スクリプト（PowerShell）
-├── run.bat                 # ダブルクリックで実行できるバッチファイル
+│   ├── Cargo.toml                  # ワークスペース定義
+│   ├── fibonacci/                  # フェーズ1
+│   ├── sieve/                      # フェーズ2
+│   ├── matrix/                     # フェーズ3
+│   └── palindrome/                 # フェーズ4
+├── results/                        # ベンチマーク結果ログ保存用
+├── requirements.txt                # Python依存パッケージ
+├── run_benchmark.ps1               # 一括実行スクリプト（PowerShell）
+├── run.bat                         # ダブルクリックで実行できるバッチファイル
 └── README.md
 ```
 
@@ -165,8 +177,8 @@ C[i][j] = A[i][0]*B[0][j] + A[i][1]*B[1][j] + ... + A[i][199]*B[199][j]
 
 ### 総合比較（3者）
 
-| フェーズ | テーマ | Pure Python | Python + C | Rust | Pure→Rust |
-|---------|--------|-------------|-----------|------|-----------|
+| フェーズ | テーマ | Pure Python | 最適化版 | Rust | Pure→Rust |
+|---------|--------|-------------|---------|------|-----------|
 | 1 | フィボナッチ（N=40） | 12,000 ms | 0.05 ms (lru_cache) | 216 ms | **55x** |
 | 2 | 素数計算（上限1000万） | 903 ms | 20 ms (NumPy) | 21 ms | **43x** |
 | 3 | 行列積（200×200） | 478 ms | 0.77 ms (NumPy) | 6 ms | **84x** |
@@ -198,11 +210,11 @@ C[i][j] = A[i][0]*B[0][j] + A[i][1]*B[1][j] + ... + A[i][199]*B[199][j]
 
 Pythonは同一ロジックで**24〜84倍遅い**。特にCPU密な計算やループが多いほど差が大きくなる。
 これはPythonの動的型付け・インタプリタ実行モデルの本質的な特性であり、
-NumPy等のCバインディングを使わない純粋なPythonコードでは避けられないコストである。
+NumPy等のネイティブライブラリを使わない純粋なPythonコードでは避けられないコストである。
 
-## 補足検証: 純粋Python vs Cバインディング活用版
+## 補足検証: 純粋Python vs 最適化版
 
-「Pythonが遅い」のは純粋なPythonコードに限った話であり、Cバインディング（NumPy, lru_cache等）を活用すれば劇的に高速化できることを証明する追加検証。
+「Pythonが遅い」のは純粋なPythonコードに限った話であり、NumPyやlru_cache等の最適化手法を活用すれば劇的に高速化できることを証明する追加検証。
 
 ### 実行方法
 
@@ -213,32 +225,32 @@ python python/fix/comparison_all.py
 
 ### 結果
 
-| テーマ | 純粋Python | C活用版 | 高速化 | 使用したもの |
+| テーマ | 純粋Python | 最適化版 | 高速化 | 使用したもの |
 |--------|-----------|---------|--------|-------------|
 | フィボナッチ | 11,809 ms | 0.03 ms | **468,595x** | functools.lru_cache |
 | 素数計算 | 894 ms | 19 ms | **47x** | NumPy配列スライス |
 | 行列積 | 465 ms | 12 ms | **39x** | numpy.matmul (BLAS) |
 | 回文判定 | 1,003 ms | 143 ms | **7x** | 文字列スライス `s[::-1]` |
 
-### Rust vs Python（Cバインディング活用版）の比較
+### Rust vs Python（最適化版）の比較
 
-| テーマ | Rust | Python+C | 差 | 備考 |
+| テーマ | Rust | 最適化版 | 差 | 備考 |
 |--------|------|----------|-----|------|
-| フィボナッチ | 216 ms | 0.05 ms | **Python+C が4,000倍速い** | ※アルゴリズム変更（メモ化）による高速化。純粋な言語性能比較ではない |
+| フィボナッチ | 216 ms | 0.05 ms | **最適化版が4,000倍速い** | ※アルゴリズム変更（メモ化）による高速化。純粋な言語性能比較ではない |
 | 素数計算 | 19 ms | 19 ms | **ほぼ同等** | NumPy配列スライスでループをC層に委譲 |
-| 行列積 | 6 ms | 0.77 ms | **Python+C が8倍速い** | NumPy内部のBLAS（OpenBLAS）がSIMD+マルチスレッドで最適化 |
+| 行列積 | 6 ms | 0.77 ms | **最適化版が8倍速い** | NumPy内部のBLAS（OpenBLAS）がSIMD+マルチスレッドで最適化 |
 | 回文判定 | 43 ms | 143 ms | Rust が3倍速い | スライスでもPythonのforループが残るため |
 
 > ⚠️ **フィボナッチの注意点**: lru_cache版は計算量がO(2^n)→O(n)に変わるアルゴリズム改善であり、
-> 「Cバインディングだから速い」のではなく「メモ化で重複計算を排除したから速い」。
+> 「最適化ライブラリだから速い」のではなく「メモ化で重複計算を排除したから速い」。
 > Rust側でも同じメモ化を実装すれば同等の速度になる。他の3つは同一アルゴリズムでの純粋な比較。
 
 ### 結論
 
 - 純粋Pythonは確かに遅い（Rustの24〜84倍遅い）
-- しかしCバインディングを活用すれば、**Rustとほぼ同等の性能が出るケースもある**
+- しかし適切な最適化手法を活用すれば、**Rustとほぼ同等の性能が出るケースもある**
 - 特にNumPyの行列演算はBLAS（C/Fortran実装）を内部で呼ぶため、Rustの素朴な実装と同等以上
-- 「Pythonが遅い」の正体は**Pythonインタプリタ自体が遅い**のであって、**Cで書かれたライブラリへの橋渡し役**として使えば問題にならない
+- 「Pythonが遅い」の正体は**Pythonインタプリタのループ・関数呼び出しが遅い**のであって、**重い処理をネイティブライブラリに委譲**すれば問題にならない
 
 ---
 
