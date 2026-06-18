@@ -1,5 +1,14 @@
 # Python vs Rust Performance Benchmark
 
+## Questions This Project Answers
+
+| Question | Answer |
+|----------|--------|
+| **Why is Python slow?** | The Python interpreter performs dynamic type checks and bytecode dispatch on every loop iteration and function call. The same logic takes **24–84x longer** than Rust. |
+| **Is it still slow with external libraries?** | **No.** When heavy computation is delegated to native libraries like NumPy, Python matches or even exceeds Rust. Python's "slowness" is limited to interpreter-level loops and function calls — once the work is handed off to C/Fortran, the overhead disappears. |
+
+---
+
 A project that quantitatively verifies why "Python is slow" by comparing execution times of identical algorithms implemented in Python and Rust.
 
 ## Phases
