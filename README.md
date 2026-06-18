@@ -1,5 +1,7 @@
 # Python vs Rust パフォーマンス比較検証
 
+> **English version**: [README_EN.md](./README_EN.md)
+
 「Pythonは遅い」と言われる理由を、同一アルゴリズムの実行時間比較で定量的に検証するプロジェクト。
 
 ## フェーズ一覧
@@ -14,6 +16,7 @@
 ## 前提条件
 
 - Python 3.10以上
+- NumPy（fix版の実行に必要）: `pip install numpy`
 - Rust (rustup経由でインストール): https://rustup.rs/
 - Visual Studio Build Tools 2022（MSVCリンカー）
 
@@ -22,19 +25,31 @@
 ### 一括実行（推奨）
 
 ```powershell
+# PowerShellから実行
 powershell -ExecutionPolicy Bypass -File run_benchmark.ps1
+
+# または run.bat をダブルクリック
+run.bat
 ```
 
 ### 個別実行
 
 ```bash
-# Python
+# Pure Python（純粋Python版）
 python python/fibonacci.py
 python python/sieve.py
 python python/matrix.py
 python python/palindrome.py
 
-# Rust (要ビルド)
+# Python + Cバインディング（fix版）
+pip install numpy
+python python/fix/fibonacci_lru.py
+python python/fix/sieve_numpy.py
+python python/fix/matrix_numpy.py
+python python/fix/palindrome_regex.py
+python python/fix/comparison_all.py    # 統合比較
+
+# Rust（要ビルド）
 cd rust/fibonacci && cargo build --release && ./target/release/fibonacci.exe
 cd rust/sieve && cargo build --release && ./target/release/sieve.exe
 cd rust/matrix && cargo build --release && ./target/release/matrix.exe
@@ -63,7 +78,8 @@ Python検証/
 │   ├── sieve/              # フェーズ2
 │   ├── matrix/             # フェーズ3
 │   └── palindrome/         # フェーズ4
-├── run_benchmark.ps1       # 一括実行スクリプト
+├── run_benchmark.ps1       # 一括実行スクリプト（PowerShell）
+├── run.bat                 # ダブルクリックで実行できるバッチファイル
 └── README.md
 ```
 
@@ -131,14 +147,14 @@ C[i][j] = A[i][0]*B[0][j] + A[i][1]*B[1][j] + ... + A[i][199]*B[199][j]
 
 ## 検証結果
 
-### 総合比較
+### 総合比較（3者）
 
-| フェーズ | テーマ | Python | Rust | 倍率 |
-|---------|--------|--------|------|------|
-| 1 | フィボナッチ（再帰, N=40） | 12,117 ms | 221 ms | **55x** |
-| 2 | 素数計算（上限1000万） | 899 ms | 19 ms | **48x** |
-| 3 | 行列積（200×200） | 481 ms | 6 ms | **84x** |
-| 4 | 回文判定（100万回） | 1,026 ms | 43 ms | **24x** |
+| フェーズ | テーマ | Pure Python | Python + C | Rust | Pure→Rust |
+|---------|--------|-------------|-----------|------|-----------|
+| 1 | フィボナッチ（N=40） | 12,000 ms | 0.05 ms (lru_cache) | 216 ms | **55x** |
+| 2 | 素数計算（上限1000万） | 903 ms | 20 ms (NumPy) | 21 ms | **43x** |
+| 3 | 行列積（200×200） | 478 ms | 0.77 ms (NumPy) | 6 ms | **84x** |
+| 4 | 回文判定（100万回） | 1,021 ms | 171 ms (slice) | 43 ms | **24x** |
 
 ### 考察
 
