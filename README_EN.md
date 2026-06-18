@@ -210,7 +210,9 @@ Proof that "Python is slow" only applies to pure Python code. With C bindings (N
 
 ## Environment
 
-- OS: Windows
-- Python: 3.13
-- Rust: 1.96.0 (2026-05-25)
+- OS: Windows 11 Pro
+- CPU: AMD Ryzen 7 7735HS with Radeon Graphics
+- RAM: 30 GB
+- Python: 3.13.12
+- Rust: 1.96.0 (ac68faa20 2026-05-25)
 - Build: cargo build --release (optimized)

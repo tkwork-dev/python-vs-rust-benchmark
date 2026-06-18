@@ -223,7 +223,9 @@ python python/fix/comparison_all.py
 
 ## 実行環境
 
-- OS: Windows
-- Python: 3.x
-- Rust: 1.96.0 (2026-05-25)
-- ビルド: cargo build --release (最適化あり)
+- OS: Windows 11 Pro
+- CPU: AMD Ryzen 7 7735HS with Radeon Graphics
+- RAM: 30 GB
+- Python: 3.13.12
+- Rust: 1.96.0 (ac68faa20 2026-05-25)
+- ビルド: cargo build --release（最適化あり）
